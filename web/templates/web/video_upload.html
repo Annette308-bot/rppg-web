@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload & Processing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 20px;
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            background: #f7fafc;
+            font-size: 1rem;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .file-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: center;
+            min-width: 200px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f56565;
+        }
+
+        .success-message {
+            background: #f0fff4;
+            color: #38a169;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .results-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .original-video, .processing-result {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .section-title {
+            color: #4a5568;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-player {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .video-info h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .info-value {
+            color: #718096;
+        }
+
+        .result-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .result-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0fff4;
+            color: #38a169;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .result-status.processing {
+            background: #fff5b4;
+            color: #744210;
+        }
+
+        .result-status.error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .upload-section, .results-section {
+                padding: 30px 20px;
+            }
+
+            .results-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .submit-btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .upload-section, .results-section {
+                padding: 25px 15px;
+            }
+
+            .file-input {
+                padding: 15px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Video Upload & Processing</h1>
+            <p>Upload your video file for intelligent processing and analysis</p>
+        </div>
+
+        <!-- Error Messages -->
+        {% if error_message %}
+        <div class="error-message">
+            {{ error_message }}
+        </div>
+        {% endif %}
+
+        <!-- Success Messages -->
+        {% if success_message %}
+        <div class="success-message">
+            {{ success_message }}
+        </div>
+        {% endif %}
+
+        <div class="upload-section">
+            <form class="upload-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label" for="video_file">Select Video File</label>
+                    <input type="file" id="video_file" name="video_file" class="file-input" 
+                           accept="video/*" required>
+                    <small style="color: #718096; margin-top: 10px; display: block;">
+                        Supported formats: MP4, AVI, MOV, WMV, MKV (Max size: 100MB)
+                    </small>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Process Video
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section (shown only when video is processed) -->
+        {% if video_data %}
+        <div class="results-section">
+            <div class="results-header">
+                <h2>Processing Results</h2>
+                {% if processing_status == 'completed' %}
+                    <div class="result-status">
+                        ✅ Processing Complete
+                    </div>
+                {% elif processing_status == 'processing' %}
+                    <div class="result-status processing">
+                        ⏳ Processing in progress...
+                    </div>
+                {% elif processing_status == 'error' %}
+                    <div class="result-status error">
+                        ❌ Processing failed
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="results-content">
+                <div class="original-video">
+                    <h3 class="section-title">Original Video</h3>
+                    <div class="video-container">
+                        <video class="video-player" controls>
+                            <source src="{{ video_url }}" type="{{ video_data.content_type }}">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div class="video-info">
+                        <h4>Video Information</h4>
+                        <div class="info-item">
+                            <span class="info-label">File Name:</span>
+                            <span class="info-value">{{ video_data.name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">File Size:</span>
+                            <span class="info-value">{{ video_data.size|filesizeformat }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Content Type:</span>
+                            <span class="info-value">{{ video_data.content_type }}</span>
+                        </div>
+                        {% if video_duration %}
+                        <div class="info-item">
+                            <span class="info-label">Duration:</span>
+                            <span class="info-value">{{ video_duration }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="processing-result">
+                    <h3 class="section-title">Processing Result</h3>
+                    <div class="result-content">
+                        {% if processing_result %}
+                            <!-- Display your processing results here -->
+                            <h4 style="color: #2d3748; margin-bottom: 15px;">Analysis Results</h4>
+                            {% if processing_result.analysis %}
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Analysis:</strong>
+                                    <p style="margin-top: 5px; color: #4a5568;">{{ processing_result.analysis }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            {% if processing_result.metadata %}
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Technical Details:</strong>
+                                    <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
+                                        {% for key, value in processing_result.metadata.items %}
+                                            <div style="margin-bottom: 5px;">
+                                                <strong>{{ key|title }}:</strong> {{ value }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if processing_result.processed_video_url %}
+                                <div style="margin-top: 20px;">
+                                    <strong>Processed Video:</strong>
+                                    <div style="margin-top: 10px;">
+                                        <video controls style="width: 100%; max-width: 300px; border-radius: 8px;">
+                                            <source src="{{ processing_result.processed_video_url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p style="color: #718096; font-style: italic;">
+                                Processing results will appear here once the video has been analyzed.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

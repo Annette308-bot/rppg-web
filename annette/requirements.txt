@@ -1,0 +1,23 @@
+
+# requirements.txt
+# Basic Django setup
+Django>=4.2.0
+
+# For video processing (choose based on your needs)
+opencv-python>=4.8.0          # Computer vision and video processing
+moviepy>=1.0.3                # Video editing and analysis
+ffmpeg-python>=0.2.0          # FFmpeg wrapper for format conversion
+Pillow>=10.0.0                # Image processing (thumbnails, frames)
+
+# Optional: For advanced video analysis
+# torch>=2.0.0                 # PyTorch for ML models
+# torchvision>=0.15.0          # Computer vision models
+# tensorflow>=2.13.0           # TensorFlow for ML models
+
+# For file handling and utilities
+python-magic>=0.4.27          # File type detection
+python-dateutil>=2.8.2       # Date/time utilities
+
+# For production deployment (optional)
+gunicorn>=21.2.0              # WSGI server
+whitenoise>=6.5.0             # Static file serving

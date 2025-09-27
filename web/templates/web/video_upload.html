@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Upload & Processing</title>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Video Upload & Processing - RPPG Project</title>
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -15,13 +15,68 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
             color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
+            min-height: 100vh;
         }
 
         .header {
@@ -246,9 +301,21 @@
             color: #c53030;
         }
 
+        /* Footer Styles */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+
+
         /* Responsive Design */
         @media (max-width: 768px) {
-            body {
+            .main-content {
                 padding: 15px;
             }
 
@@ -269,6 +336,19 @@
                 width: 100%;
                 min-width: auto;
             }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
         }
 
         @media (max-width: 480px) {
@@ -283,153 +363,179 @@
             .file-input {
                 padding: 15px;
             }
+
+            .navbar-container {
+                padding: 0 15px;
+            }
         }
 
         .hidden {
             display: none;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Video Upload & Processing</h1>
-            <p>Upload your video file for intelligent processing and analysis</p>
-        </div>
+    </head>
+    <body>
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <a href="#" class="navbar-brand">RPPG PROJECT</a>
+                <ul class="navbar-nav">
+                    <li><a href="#" class="nav-link"></a></li>
+                </ul>
+            </div>
+        </nav>
 
-        <!-- Error Messages -->
-        {% if error_message %}
-        <div class="error-message">
-            {{ error_message }}
-        </div>
-        {% endif %}
-
-        <!-- Success Messages -->
-        {% if success_message %}
-        <div class="success-message">
-            {{ success_message }}
-        </div>
-        {% endif %}
-
-        <div class="upload-section">
-            <form class="upload-form" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label class="form-label" for="video_file">Select Video File</label>
-                    <input type="file" id="video_file" name="video_file" class="file-input" 
-                           accept="video/*" required>
-                    <small style="color: #718096; margin-top: 10px; display: block;">
-                        Supported formats: MP4, AVI, MOV, WMV, MKV (Max size: 100MB)
-                    </small>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <div class="header">
+                    <h1>Contactless Heart Rate Monitoring</h1>
+                    <p>
+                        Upload a facial video to extract cardiovascular signals
+                        using advanced computer vision. Our RPPG technology
+                        detects subtle color variations in skin tissue to
+                        measure heart rate and pulse variability without
+                        physical contact
+                    </p>
                 </div>
 
-                <button type="submit" class="submit-btn">
-                    Process Video
-                </button>
-            </form>
-        </div>
-
-        <!-- Results Section (shown only when video is processed) -->
-        {% if video_data %}
-        <div class="results-section">
-            <div class="results-header">
-                <h2>Processing Results</h2>
-                {% if processing_status == 'completed' %}
-                    <div class="result-status">
-                        ✅ Processing Complete
-                    </div>
-                {% elif processing_status == 'processing' %}
-                    <div class="result-status processing">
-                        ⏳ Processing in progress...
-                    </div>
-                {% elif processing_status == 'error' %}
-                    <div class="result-status error">
-                        ❌ Processing failed
-                    </div>
+                <!-- Error Messages -->
+                {% if error_message %}
+                <div class="error-message">
+                    {{ error_message }}
+                </div>
                 {% endif %}
-            </div>
 
-            <div class="results-content">
-                <div class="original-video">
-                    <h3 class="section-title">Original Video</h3>
-                    <div class="video-container">
-                        <video class="video-player" controls>
-                            <source src="{{ video_url }}" type="{{ video_data.content_type }}">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                    
-                    <div class="video-info">
-                        <h4>Video Information</h4>
-                        <div class="info-item">
-                            <span class="info-label">File Name:</span>
-                            <span class="info-value">{{ video_data.name }}</span>
+                <!-- Success Messages -->
+                {% if success_msg %}
+                <div class="success-message">
+                    {{ success_msg }}
+                </div>
+                {% endif %}
+
+                <div class="upload-section">
+                    <form class="upload-form" method="post"
+                        enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="form-label" for="video_file">Select
+                                Video File</label>
+                            <input type="file" id="video_file" name="video_file"
+                                class="file-input"
+                                accept="video/*" required>
+                            <small
+                                style="color: #718096; margin-top: 10px; display: block;">
+                                Supported formats: MP4, AVI, MOV, WMV, MKV (Max
+                                size: 100MB)
+                            </small>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">File Size:</span>
-                            <span class="info-value">{{ video_data.size|filesizeformat }}</span>
+
+                        <button type="submit" class="submit-btn">
+                            Analyze Video
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Section (shown only when video is processed) -->
+                {% if video_data %}
+                <div class="results-section">
+                    <div class="results-header">
+                        <h2>RPPG Processing Results</h2>
+                        {% if p_status == 'completed' %}
+                        <div class="result-status">
+                            ✅ Detection Complete
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Content Type:</span>
-                            <span class="info-value">{{ video_data.content_type }}</span>
+                        {% elif p_status == 'processing' %}
+                        <div class="result-status processing">
+                            ⏳ Processing in progress...
                         </div>
-                        {% if video_duration %}
-                        <div class="info-item">
-                            <span class="info-label">Duration:</span>
-                            <span class="info-value">{{ video_duration }}</span>
+                        {% elif p_status == 'error' %}
+                        <div class="result-status error">
+                            ❌ Processing failed
                         </div>
                         {% endif %}
                     </div>
-                </div>
 
-                <div class="processing-result">
-                    <h3 class="section-title">Processing Result</h3>
-                    <div class="result-content">
-                        {% if processing_result %}
-                            <!-- Display your processing results here -->
-                            <h4 style="color: #2d3748; margin-bottom: 15px;">Analysis Results</h4>
-                            {% if processing_result.analysis %}
+                    <div class="results-content">
+                        <div class="original-video">
+                            <h3 class="section-title">Uploaded Video</h3>
+                            <div class="video-container">
+                                <video class="video-player" controls>
+                                    <source src="{{ video_data_url }}"
+                                        type="{{ video_data.content_type }}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+
+                        <div class="processing-result">
+                            <h3 class="section-title">RPPG Analysis Result</h3>
+                            <div class="result-content">
+                                {% if p_result %}
+                                <h4
+                                    style="color: #2d3748; margin-bottom: 15px;">
+                                    Results
+                                </h4>
+                                {% if p_result.analysis %}
                                 <div style="margin-bottom: 15px;">
-                                    <strong>Analysis:</strong>
-                                    <p style="margin-top: 5px; color: #4a5568;">{{ processing_result.analysis }}</p>
+                                    <p
+                                        style="margin-top: 5px; color: #4a5568;">
+                                        {{ p_result.analysis }}
+                                    </p>
                                 </div>
-                            {% endif %}
-                            
-                            {% if processing_result.metadata %}
+                                {% endif %}
+
+                                {% if p_result.meta %}
                                 <div style="margin-bottom: 15px;">
-                                    <strong>Technical Details:</strong>
-                                    <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
-                                        {% for key, value in processing_result.metadata.items %}
-                                            <div style="margin-bottom: 5px;">
-                                                <strong>{{ key|title }}:</strong> {{ value }}
-                                            </div>
+                                    <div
+                                        style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
+                                        {% for k, v in p_result.meta.items %}
+                                        <div style="margin-bottom: 5px;">
+                                            <strong>
+                                                {{ k|title }}:
+                                            </strong>
+                                            {{ v }}
+                                        </div>
                                         {% endfor %}
                                     </div>
                                 </div>
-                            {% endif %}
-                            
-                            {% if processing_result.processed_video_url %}
+                                {% endif %}
+
+                                {% if p_result.processed_video_url %}
                                 <div style="margin-top: 20px;">
                                     <strong>Processed Video:</strong>
                                     <div style="margin-top: 10px;">
-                                        <video controls style="width: 100%; max-width: 300px; border-radius: 8px;">
-                                            <source src="{{ processing_result.processed_video_url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
+                                        <video controls
+                                            style="width: 100%; max-width: 300px; border-radius: 8px;">
+                                            <source
+                                                src="{{ p_result.processed_video_url }}"
+                                                type="video/mp4">
+                                            Your browser does not support the
+                                            video tag.
                                         </video>
                                     </div>
                                 </div>
-                            {% endif %}
-                        {% else %}
-                            <p style="color: #718096; font-style: italic;">
-                                Processing results will appear here once the video has been analyzed.
-                            </p>
-                        {% endif %}
+                                {% endif %}
+                                {% else %}
+                                <p style="color: #718096; font-style: italic;">
+                                    RPPG analysis results will appear here once
+                                    the video has been processed.
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
-        </div>
-        {% endif %}
-    </div>
-</body>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                &copy; 2025 RPPG Project | Academic Purpose Only | UESTC
+            </p>
+        </footer>
+    </body>
 </html>

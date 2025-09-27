@@ -6,36 +6,6 @@ from django.views.decorators.csrf import csrf_protect
 from .rppg import process_video
 
 
-def process_video_test(video_path):
-    """
-    Process the video file and return analysis results.
-    Replace this with your actual video processing logic.
-    """
-    try:
-        # Placeholder for your video processing logic
-        # This could include:
-        # - RPPG analysis
-        # - Face detection
-        # - Heart rate extraction
-        # - Other video analysis
-
-        # For now, returning mock data
-        result = {
-            "analysis": "Video processing completed successfully. Heart rate patterns detected.",
-            "meta": {
-                "frames_processed": 1500,
-                "avg_heart_rate": "72 BPM",
-                "confidence_score": "95%",
-                "processing_time": "45 seconds",
-            },
-            "status": "completed",
-        }
-
-        return result
-    except Exception as e:
-        return {"status": "error", "error_message": str(e)}
-
-
 @csrf_protect
 def video_upload_view(request):
     context = {}

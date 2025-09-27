@@ -2,12 +2,11 @@ import os
 import tempfile
 import base64
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_protect
-import mimetypes
+from .rppg import process_video
 
 
-def process_video(video_path):
+def process_video_test(video_path):
     """
     Process the video file and return analysis results.
     Replace this with your actual video processing logic.
@@ -70,9 +69,9 @@ def video_upload_view(request):
                 temp_file.write(video_content)
                 temp_file_path = temp_file.name
 
-            processing_result = process_video(temp_file_path)
+            rppg_result = process_video(temp_file_path)
+            rppg_result.pop("file")
 
-            # Immediately delete the temporary file after processing
             if temp_file_path and os.path.exists(temp_file_path):
                 try:
                     os.unlink(temp_file_path)
@@ -89,10 +88,10 @@ def video_upload_view(request):
                         "name": video_file.name,
                         "size": video_file.size,
                         "content_type": video_file.content_type,
-                    },
+                    },"analysis": "Video processing completed successfully. Heart rate patterns detected.",
                     "video_data_url": video_data_url,
-                    "p_result": processing_result,
-                    "p_status": processing_result.get("status", "completed"),
+                    "p_result": rppg_result,
+                    "p_status": rppg_result.get("status", "completed"),
                     "success_msg": "Video uploaded and processed successfully!",
                 }
             )

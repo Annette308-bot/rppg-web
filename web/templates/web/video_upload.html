@@ -477,20 +477,18 @@
                                     style="color: #2d3748; margin-bottom: 15px;">
                                     Results
                                 </h4>
-                                {% if p_result.analysis %}
                                 <div style="margin-bottom: 15px;">
                                     <p
                                         style="margin-top: 5px; color: #4a5568;">
-                                        {{ p_result.analysis }}
+                                        {{ analysis }}
                                     </p>
                                 </div>
-                                {% endif %}
 
-                                {% if p_result.meta %}
+                                {% if p_result %}
                                 <div style="margin-bottom: 15px;">
                                     <div
                                         style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
-                                        {% for k, v in p_result.meta.items %}
+                                        {% for k, v in p_result.items %}
                                         <div style="margin-bottom: 5px;">
                                             <strong>
                                                 {{ k|title }}:
@@ -538,4 +536,4 @@
             </p>
         </footer>
     </body>
-</html>
+\</html>

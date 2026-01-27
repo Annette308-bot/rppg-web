@@ -1,16 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Video Upload & Processing - RPPG Project</title>
         <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -19,8 +14,6 @@
             display: flex;
             flex-direction: column;
         }
-
-        /* Navbar Styles */
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -30,7 +23,6 @@
             top: 0;
             z-index: 1000;
         }
-
         .navbar-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -39,7 +31,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
         .navbar-brand {
             font-size: 1.8rem;
             font-weight: 700;
@@ -49,52 +40,11 @@
             background-clip: text;
             text-decoration: none;
         }
-
-        .navbar-nav {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-
-        .nav-link {
-            color: #4a5568;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #667eea;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            min-height: 100vh;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-        }
+        .main-content { flex: 1; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; min-height: 100vh; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: white; font-size: 2.5rem; font-weight: 300; margin-bottom: 10px; }
+        .header p { color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; }
 
         .upload-section {
             background: white;
@@ -103,17 +53,8 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             margin-bottom: 40px;
         }
-
-        .upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
+        .upload-form { display: flex; flex-direction: column; gap: 30px; }
+        .form-group { position: relative; }
         .form-label {
             display: block;
             font-weight: 600;
@@ -121,7 +62,6 @@
             margin-bottom: 15px;
             font-size: 1.1rem;
         }
-
         .file-input {
             width: 100%;
             padding: 20px;
@@ -133,18 +73,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
-        .file-input:hover {
-            border-color: #667eea;
-            background: #edf2f7;
-        }
-
+        .file-input:hover { border-color: #667eea; background: #edf2f7; }
         .file-input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
         .submit-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -158,12 +92,10 @@
             align-self: center;
             min-width: 200px;
         }
-
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
-
         .error-message {
             background: #fed7d7;
             color: #c53030;
@@ -172,7 +104,6 @@
             margin-bottom: 20px;
             border-left: 4px solid #f56565;
         }
-
         .success-message {
             background: #f0fff4;
             color: #38a169;
@@ -189,39 +120,26 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             margin-bottom: 40px;
         }
-
-        .results-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .results-header h2 {
-            color: #2d3748;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
+        .results-header { text-align: center; margin-bottom: 40px; }
+        .results-header h2 { color: #2d3748; font-size: 2rem; margin-bottom: 10px; }
         .results-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
             align-items: start;
         }
-
         .original-video, .processing-result {
             background: #f7fafc;
             border-radius: 15px;
             padding: 30px;
             text-align: center;
         }
-
         .section-title {
             color: #4a5568;
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 20px;
         }
-
         .video-container {
             position: relative;
             width: 100%;
@@ -231,12 +149,7 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
-        .video-player {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+        .video-player { width: 100%; height: auto; display: block; }
 
         .result-content {
             background: white;
@@ -244,7 +157,6 @@
             border-radius: 12px;
             border: 2px solid #e2e8f0;
         }
-
         .result-status {
             display: inline-flex;
             align-items: center;
@@ -256,18 +168,9 @@
             font-weight: 500;
             margin-bottom: 20px;
         }
+        .result-status.processing { background: #fff5b4; color: #744210; }
+        .result-status.error { background: #fed7d7; color: #c53030; }
 
-        .result-status.processing {
-            background: #fff5b4;
-            color: #744210;
-        }
-
-        .result-status.error {
-            background: #fed7d7;
-            color: #c53030;
-        }
-
-        /* Footer Styles */
         .footer {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -277,74 +180,30 @@
             text-align: center;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .main-content {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .upload-section, .results-section {
-                padding: 30px 20px;
-            }
-
-            .results-content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-
-            .submit-btn {
-                width: 100%;
-                min-width: auto;
-            }
-
-            .navbar-nav {
-                display: none;
-            }
-
-            .navbar-brand {
-                font-size: 1.5rem;
-            }
+            .main-content { padding: 15px; }
+            .header h1 { font-size: 2rem; }
+            .upload-section, .results-section { padding: 30px 20px; }
+            .results-content { grid-template-columns: 1fr; gap: 30px; }
+            .submit-btn { width: 100%; min-width: auto; }
+            .navbar-brand { font-size: 1.5rem; }
         }
-
         @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-
-            .upload-section, .results-section {
-                padding: 25px 15px;
-            }
-
-            .file-input {
-                padding: 15px;
-            }
-
-            .navbar-container {
-                padding: 0 15px;
-            }
+            .header h1 { font-size: 1.8rem; }
+            .upload-section, .results-section { padding: 25px 15px; }
+            .file-input { padding: 15px; }
+            .navbar-container { padding: 0 15px; }
         }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+        </style>
     </head>
+
     <body>
-        <!-- Navigation Bar -->
         <nav class="navbar">
             <div class="navbar-container">
                 <a href="#" class="navbar-brand">RPPG PROJECT</a>
-                <ul class="navbar-nav">
-                    <li><a href="#" class="nav-link"></a></li>
-                </ul>
             </div>
         </nav>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="container">
                 <div class="header">
@@ -358,14 +217,12 @@
                     </p>
                 </div>
 
-                <!-- Error Messages -->
                 {% if error_message %}
                 <div class="error-message">
                     {{ error_message }}
                 </div>
                 {% endif %}
 
-                <!-- Success Messages -->
                 {% if success_msg %}
                 <div class="success-message">
                     {{ success_msg }}
@@ -376,7 +233,6 @@
                     <form class="upload-form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
-                        <!-- ✅ NEW: metadata fields -->
                         <div class="form-group">
                             <label class="form-label" for="subject_id">Subject ID</label>
                             <input id="subject_id" name="subject_id" class="file-input" value="S01" />
@@ -400,7 +256,6 @@
                         </div>
 
                         <input type="hidden" name="method" value="thesis_precomputed" />
-                        <!-- ✅ END new fields -->
 
                         <div class="form-group">
                             <label class="form-label" for="video_file">Select Video File</label>
@@ -417,23 +272,16 @@
                     </form>
                 </div>
 
-                <!-- Results Section (shown only when video is processed) -->
                 {% if video_data %}
                 <div class="results-section">
                     <div class="results-header">
                         <h2>RPPG Processing Results</h2>
                         {% if p_status == 'completed' %}
-                        <div class="result-status">
-                            ✅ Detection Complete
-                        </div>
+                        <div class="result-status">✅ Detection Complete</div>
                         {% elif p_status == 'processing' %}
-                        <div class="result-status processing">
-                            ⏳ Processing in progress...
-                        </div>
+                        <div class="result-status processing">⏳ Processing in progress...</div>
                         {% elif p_status == 'error' %}
-                        <div class="result-status error">
-                            ❌ Processing failed
-                        </div>
+                        <div class="result-status error">❌ Processing failed</div>
                         {% endif %}
                     </div>
 
@@ -441,17 +289,19 @@
                         <div class="original-video">
                             <h3 class="section-title">Uploaded Video</h3>
                             <div class="video-container">
+
                                 {% if video_data_url %}
                                 <video class="video-player" controls>
-                                    <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
-                                    Your browser does not support the video tag.
+                                  <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
+                                  Your browser does not support the video tag.
                                 </video>
                                 {% else %}
-                                <p style="color:#718096; font-style: italic;">
-                                    Preview disabled on server (to avoid large base64 responses).<br>
-                                    Uploaded file: <strong>{{ video_data.name }}</strong>
+                                <p style="color:#718096; font-style: italic; padding: 20px;">
+                                  Preview disabled on server (to avoid large base64 responses).<br>
+                                  Uploaded file: <strong>{{ video_data.name }}</strong>
                                 </p>
                                 {% endif %}
+
                             </div>
                         </div>
 
@@ -461,38 +311,17 @@
                                 {% if p_result %}
                                 <h4 style="color: #2d3748; margin-bottom: 15px;">Results</h4>
 
-                                <div style="margin-bottom: 15px;">
-                                    <p style="margin-top: 5px; color: #4a5568;">
-                                        {{ analysis }}
-                                    </p>
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
-                                        {% for k, v in p_result.items %}
-                                        <div style="margin-bottom: 5px;">
-                                            <strong>{{ k|title }}:</strong> {{ v }}
-                                        </div>
-                                        {% endfor %}
+                                <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
+                                    {% for k, v in p_result.items %}
+                                    <div style="margin-bottom: 5px;">
+                                        <strong>{{ k|title }}:</strong> {{ v }}
                                     </div>
+                                    {% endfor %}
                                 </div>
-
-                                {% if p_result.processed_video_url %}
-                                <div style="margin-top: 20px;">
-                                    <strong>Processed Video:</strong>
-                                    <div style="margin-top: 10px;">
-                                        <video controls style="width: 100%; max-width: 300px; border-radius: 8px;">
-                                            <source src="{{ p_result.processed_video_url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    </div>
-                                </div>
-                                {% endif %}
 
                                 {% else %}
                                 <p style="color: #718096; font-style: italic;">
-                                    RPPG analysis results will appear here once
-                                    the video has been processed.
+                                    RPPG analysis results will appear here once the video has been processed.
                                 </p>
                                 {% endif %}
                             </div>
@@ -503,11 +332,8 @@
             </div>
         </main>
 
-        <!-- Footer -->
         <footer class="footer">
-            <p>
-                &copy; 2025 RPPG Project | Academic Purpose Only | UESTC
-            </p>
+            <p>&copy; 2025 RPPG Project | Academic Purpose Only | UESTC</p>
         </footer>
     </body>
 </html>

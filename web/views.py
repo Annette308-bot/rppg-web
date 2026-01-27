@@ -82,7 +82,7 @@ def video_upload_view(request):
                     "modality": modality,
                     "method": method,
                     "min_valid_pct": 50,
-                    "save": 0,
+                    "save": 1,
                     "timeout_sec": 120,
                 }
 

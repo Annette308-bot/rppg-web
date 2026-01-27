@@ -1,12 +1,18 @@
 import os
 import tempfile
+import base64
 import requests
 
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
+from requests.exceptions import RequestException, Timeout
 
-API_URL = os.getenv("RPPG_API_URL", "https://rppg-server-pack.onrender.com/upload_video")
-MAX_VIDEO_BYTES = 100 * 1024 * 1024  # 100MB
+
+API_URL = "https://rppg-server-pack.onrender.com/upload_video"
+
+# Set this to True only if you REALLY want video preview (base64 can be huge on Render)
+ENABLE_PREVIEW = False
+MAX_PREVIEW_MB = 3  # only used if ENABLE_PREVIEW=True
 
 
 @csrf_protect
@@ -15,7 +21,6 @@ def video_upload_view(request):
 
     if request.method == "POST":
         temp_file_path = None
-        resp = None  # for debugging in exception
 
         try:
             video_file = request.FILES.get("video_file")
@@ -24,26 +29,25 @@ def video_upload_view(request):
                 context["error_message"] = "No video file was uploaded."
                 return render(request, "web/video_upload.html", context)
 
-            content_type = (video_file.content_type or "").lower()
-            if not content_type.startswith("video/"):
-                context["error_message"] = f"Invalid file type: {video_file.content_type}"
+            if not (video_file.content_type or "").startswith("video/"):
+                context["error_message"] = "Invalid file type."
                 return render(request, "web/video_upload.html", context)
 
-            if video_file.size > MAX_VIDEO_BYTES:
+            if video_file.size > 100 * 1024 * 1024:
                 context["error_message"] = "File too large (max 100MB)."
                 return render(request, "web/video_upload.html", context)
 
             # 1) Read metadata from the HTML form (POST)
             subject_id = (request.POST.get("subject_id", "S01") or "S01").strip()
-            condition = (request.POST.get("condition", "rest") or "rest").strip().lower()
-            modality = (request.POST.get("modality", "face") or "face").strip().lower()
-            method = (request.POST.get("method", "thesis_precomputed") or "thesis_precomputed").strip()
+            condition  = (request.POST.get("condition", "rest") or "rest").strip().lower()
+            modality   = (request.POST.get("modality", "face") or "face").strip().lower()
+            method     = (request.POST.get("method", "thesis_precomputed") or "thesis_precomputed").strip()
 
-            # 2) Optional: auto-detect from filename if user didn’t choose (or left defaults)
+            # 2) Optional: auto-detect from filename if user left defaults
             name_lower = (video_file.name or "").lower()
 
-            # If user left "rest", allow filename to override
-            if condition in ("", "rest"):
+            # If user forgot and left "rest", let filename override
+            if condition == "rest":
                 if "breath" in name_lower:
                     condition = "breath"
                 elif "exercise" in name_lower:
@@ -51,25 +55,26 @@ def video_upload_view(request):
                 elif "rest" in name_lower:
                     condition = "rest"
 
-            # If user left "face", allow filename to override
-            if modality in ("", "face"):
+            # If user forgot and left "face", let filename override
+            if modality == "face":
                 if "palm" in name_lower:
                     modality = "palm"
                 elif "face" in name_lower:
                     modality = "face"
 
-            # Save temp file to disk (so we can send it to the API)
-            ext = os.path.splitext(video_file.name)[1].lower() or ".mp4"
-            with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+            # Helpful logs (shows exact upload time in Render Logs)
+            print(f"[UPLOAD] name={video_file.name} size={video_file.size} type={video_file.content_type}")
+            print(f"[META] subject={subject_id} condition={condition} modality={modality} method={method}")
+
+            # Save temp file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
                 for chunk in video_file.chunks():
                     tmp.write(chunk)
                 temp_file_path = tmp.name
 
-            # 3) Call your API using the selected metadata
+            # ---- CALL API ----
             with open(temp_file_path, "rb") as f:
-                files = {
-                    "file": (video_file.name, f, video_file.content_type or "video/mp4")
-                }
+                files = {"file": (video_file.name, f, video_file.content_type)}
 
                 data = {
                     "subject_id": subject_id,
@@ -81,42 +86,43 @@ def video_upload_view(request):
                     "timeout_sec": 120,
                 }
 
-                # Slightly longer timeout for cloud processing
-                resp = requests.post(API_URL, files=files, data=data, timeout=180)
-                resp.raise_for_status()
-                rppg_result = resp.json()
+                print("[API] sending request...")
+                response = requests.post(API_URL, files=files, data=data, timeout=130)
+                print(f"[API] status={response.status_code}")
+                response.raise_for_status()
+                rppg_result = response.json()
+            # -------------------
 
             # Cleanup temp file
             os.unlink(temp_file_path)
             temp_file_path = None
 
-            # IMPORTANT: do NOT embed the whole video in HTML (base64). It breaks on Render.
+            # Video preview (DISABLED by default to avoid huge HTML response)
+            video_data_url = None
+            if ENABLE_PREVIEW:
+                # Only preview small files
+                if video_file.size <= MAX_PREVIEW_MB * 1024 * 1024:
+                    with open(temp_file_path, "rb") as vf:
+                        video_content = vf.read()
+                    video_base64 = base64.b64encode(video_content).decode("utf-8")
+                    video_data_url = f"data:{video_file.content_type};base64,{video_base64}"
+
             context.update({
                 "video_data": {
                     "name": video_file.name,
                     "size": video_file.size,
                     "content_type": video_file.content_type,
-                    "subject_id": subject_id,
-                    "condition": condition,
-                    "modality": modality,
-                    "method": method,
                 },
-                "video_data_url": None,  # preview disabled to keep server stable
+                "video_data_url": video_data_url,   # can be None
                 "p_result": rppg_result,
                 "p_status": "completed",
-                "success_msg": "Video uploaded and analyzed successfully!",
+                "success_msg": "Video uploaded and analyzed successfully!"
             })
 
-        except requests.exceptions.RequestException as e:
-            msg = f"API request failed: {e}"
-            # include HTTP status/body if available
-            try:
-                if resp is not None:
-                    msg += f" | status={resp.status_code} | body={resp.text[:500]}"
-            except Exception:
-                pass
-            context["error_message"] = msg
-
+        except Timeout:
+            context["error_message"] = "API request timed out. Try a smaller/shorter video or retry."
+        except RequestException as e:
+            context["error_message"] = f"API request failed: {str(e)}"
         except Exception as e:
             context["error_message"] = str(e)
 

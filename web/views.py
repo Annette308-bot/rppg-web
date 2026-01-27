@@ -16,6 +16,8 @@ def video_upload_view(request):
 
     if request.method == "POST":
         temp_file_path = None
+        file_handle = None
+
         try:
             video_file = request.FILES.get("video_file")
 
@@ -32,47 +34,54 @@ def video_upload_view(request):
                 context["error_message"] = "File too large. Maximum size is 100MB."
                 return render(request, "web/video_upload.html", context)
 
-            # read bytes (for preview)
+            # Read uploaded bytes (for preview)
             video_file.seek(0)
             video_content = video_file.read()
 
-            # save temporary file (to upload to API)
+            # Save to a temporary file (so we can send it to the API)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
                 tmp.write(video_content)
                 temp_file_path = tmp.name
 
-            # ---- CALL YOUR FASTAPI (THESIS-MATCHING) SERVER ----
+            # Use defaults (you can later add form fields in HTML if you want)
+            subject_id = request.POST.get("subject_id", "S01")
+            condition = request.POST.get("condition", "rest")   # rest / breath / exercise
+            modality = request.POST.get("modality", "face")     # face / palm
+
+            # Call your FastAPI thesis server
+            file_handle = open(temp_file_path, "rb")
             files = {
-                "file": (video_file.name, open(temp_file_path, "rb"), video_file.content_type or "video/mp4")
+                "file": (video_file.name, file_handle, video_file.content_type or "video/mp4")
             }
             data = {
-                "subject_id": request.POST.get("subject_id", "S01"),
-                "condition": request.POST.get("condition", "rest"),   # rest/breath/exercise
-                "modality": request.POST.get("modality", "face"),     # face/palm
+                "subject_id": subject_id,
+                "condition": condition,
+                "modality": modality,
                 "method": "thesis_precomputed",
-                "min_valid_pct": float(request.POST.get("min_valid_pct", "50")),
+                "min_valid_pct": 50,
                 "save": 0,
-                "timeout_sec": int(request.POST.get("timeout_sec", "120")),
+                "timeout_sec": 120,
             }
 
             resp = requests.post(API_URL, files=files, data=data, timeout=140)
             resp.raise_for_status()
             rppg_result = resp.json()
 
-            # close upload file handle
+            # Close file handle
             try:
-                files["file"][1].close()
+                file_handle.close()
+                file_handle = None
             except Exception:
                 pass
 
-            # delete temp file
+            # Delete temp file
             try:
                 os.unlink(temp_file_path)
                 temp_file_path = None
             except Exception:
                 pass
 
-            # preview video in browser
+            # Preview video in browser (optional)
             video_base64 = base64.b64encode(video_content).decode("utf-8")
             video_data_url = f"data:{video_file.content_type};base64,{video_base64}"
 
@@ -98,6 +107,13 @@ def video_upload_view(request):
             context["error_message"] = f"Error processing video: {str(e)}"
 
         finally:
+            # Safety cleanup
+            if file_handle is not None:
+                try:
+                    file_handle.close()
+                except Exception:
+                    pass
+
             if temp_file_path and os.path.exists(temp_file_path):
                 try:
                     os.unlink(temp_file_path)
@@ -105,4 +121,3 @@ def video_upload_view(request):
                     pass
 
     return render(request, "web/video_upload.html", context)
-

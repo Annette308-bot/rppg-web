@@ -238,40 +238,6 @@
             display: block;
         }
 
-        .video-info {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        .video-info h4 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .info-value {
-            color: #718096;
-        }
-
         .result-content {
             background: white;
             padding: 25px;
@@ -311,8 +277,6 @@
             text-align: center;
         }
 
-
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .main-content {
@@ -343,11 +307,6 @@
 
             .navbar-brand {
                 font-size: 1.5rem;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                text-align: center;
             }
         }
 
@@ -414,20 +373,41 @@
                 {% endif %}
 
                 <div class="upload-section">
-                    <form class="upload-form" method="post"
-                        enctype="multipart/form-data">
+                    <form class="upload-form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
+                        <!-- ✅ NEW: metadata fields -->
                         <div class="form-group">
-                            <label class="form-label" for="video_file">Select
-                                Video File</label>
+                            <label class="form-label" for="subject_id">Subject ID</label>
+                            <input id="subject_id" name="subject_id" class="file-input" value="S01" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="condition">Condition</label>
+                            <select id="condition" name="condition" class="file-input">
+                                <option value="rest">rest</option>
+                                <option value="breath">breath</option>
+                                <option value="exercise">exercise</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modality">Modality</label>
+                            <select id="modality" name="modality" class="file-input">
+                                <option value="face">face</option>
+                                <option value="palm">palm</option>
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="method" value="thesis_precomputed" />
+                        <!-- ✅ END new fields -->
+
+                        <div class="form-group">
+                            <label class="form-label" for="video_file">Select Video File</label>
                             <input type="file" id="video_file" name="video_file"
-                                class="file-input"
-                                accept="video/*" required>
-                            <small
-                                style="color: #718096; margin-top: 10px; display: block;">
-                                Supported formats: MP4, AVI, MOV, WMV, MKV (Max
-                                size: 100MB)
+                                   class="file-input" accept="video/*" required>
+                            <small style="color: #718096; margin-top: 10px; display: block;">
+                                Supported formats: MP4, AVI, MOV, WMV, MKV (Max size: 100MB)
                             </small>
                         </div>
 
@@ -462,8 +442,7 @@
                             <h3 class="section-title">Uploaded Video</h3>
                             <div class="video-container">
                                 <video class="video-player" controls>
-                                    <source src="{{ video_data_url }}"
-                                        type="{{ video_data.content_type }}">
+                                    <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
                                     Your browser does not support the video tag.
                                 </video>
                             </div>
@@ -473,48 +452,36 @@
                             <h3 class="section-title">RPPG Analysis Result</h3>
                             <div class="result-content">
                                 {% if p_result %}
-                                <h4
-                                    style="color: #2d3748; margin-bottom: 15px;">
-                                    Results
-                                </h4>
+                                <h4 style="color: #2d3748; margin-bottom: 15px;">Results</h4>
+
                                 <div style="margin-bottom: 15px;">
-                                    <p
-                                        style="margin-top: 5px; color: #4a5568;">
+                                    <p style="margin-top: 5px; color: #4a5568;">
                                         {{ analysis }}
                                     </p>
                                 </div>
 
-                                {% if p_result %}
                                 <div style="margin-bottom: 15px;">
-                                    <div
-                                        style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
+                                    <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px;">
                                         {% for k, v in p_result.items %}
                                         <div style="margin-bottom: 5px;">
-                                            <strong>
-                                                {{ k|title }}:
-                                            </strong>
-                                            {{ v }}
+                                            <strong>{{ k|title }}:</strong> {{ v }}
                                         </div>
                                         {% endfor %}
                                     </div>
                                 </div>
-                                {% endif %}
 
                                 {% if p_result.processed_video_url %}
                                 <div style="margin-top: 20px;">
                                     <strong>Processed Video:</strong>
                                     <div style="margin-top: 10px;">
-                                        <video controls
-                                            style="width: 100%; max-width: 300px; border-radius: 8px;">
-                                            <source
-                                                src="{{ p_result.processed_video_url }}"
-                                                type="video/mp4">
-                                            Your browser does not support the
-                                            video tag.
+                                        <video controls style="width: 100%; max-width: 300px; border-radius: 8px;">
+                                            <source src="{{ p_result.processed_video_url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
                                         </video>
                                     </div>
                                 </div>
                                 {% endif %}
+
                                 {% else %}
                                 <p style="color: #718096; font-style: italic;">
                                     RPPG analysis results will appear here once
@@ -536,4 +503,4 @@
             </p>
         </footer>
     </body>
-\</html>
+</html>

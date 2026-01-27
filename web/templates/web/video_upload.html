@@ -441,10 +441,17 @@
                         <div class="original-video">
                             <h3 class="section-title">Uploaded Video</h3>
                             <div class="video-container">
+                                {% if video_data_url %}
                                 <video class="video-player" controls>
                                     <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
                                     Your browser does not support the video tag.
                                 </video>
+                                {% else %}
+                                <p style="color:#718096; font-style: italic;">
+                                    Preview disabled on server (to avoid large base64 responses).<br>
+                                    Uploaded file: <strong>{{ video_data.name }}</strong>
+                                </p>
+                                {% endif %}
                             </div>
                         </div>
 

@@ -1,339 +1,253 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Video Upload & Processing - RPPG Project</title>
-        <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-        }
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .navbar-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-        }
-        .main-content { flex: 1; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; min-height: 100vh; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { color: white; font-size: 2.5rem; font-weight: 300; margin-bottom: 10px; }
-        .header p { color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Upload & Processing - RPPG Project</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height:100vh; color:#333; display:flex; flex-direction:column;
+    }
+    .navbar{
+      background:rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      padding:15px 0; box-shadow:0 2px 20px rgba(0,0,0,0.1);
+      position:sticky; top:0; z-index:1000;
+    }
+    .navbar-container{
+      max-width:1000px; margin:0 auto; padding:0 20px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .navbar-brand{
+      font-size:1.8rem; font-weight:700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-decoration:none;
+    }
+    .main-content{ flex:1; padding:20px; }
+    .container{ max-width:1000px; margin:0 auto; min-height:100vh; }
+    .header{ text-align:center; margin-bottom:40px; }
+    .header h1{ color:white; font-size:2.5rem; font-weight:300; margin-bottom:10px; }
+    .header p{ color:rgba(255,255,255,0.8); font-size:1.1rem; }
 
-        .upload-section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-        }
-        .upload-form { display: flex; flex-direction: column; gap: 30px; }
-        .form-group { position: relative; }
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        .file-input {
-            width: 100%;
-            padding: 20px;
-            border: 3px dashed #cbd5e0;
-            border-radius: 15px;
-            background: #f7fafc;
-            font-size: 1rem;
-            color: #4a5568;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .file-input:hover { border-color: #667eea; background: #edf2f7; }
-        .file-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            align-self: center;
-            min-width: 200px;
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        .error-message {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #f56565;
-        }
-        .success-message {
-            background: #f0fff4;
-            color: #38a169;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #48bb78;
-        }
+    .upload-section{
+      background:white; border-radius:20px; padding:40px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.1); margin-bottom:40px;
+    }
+    .upload-form{ display:flex; flex-direction:column; gap:30px; }
+    .form-group{ position:relative; }
+    .form-label{
+      display:block; font-weight:600; color:#4a5568;
+      margin-bottom:15px; font-size:1.1rem;
+    }
+    .file-input{
+      width:100%; padding:20px; border:3px dashed #cbd5e0;
+      border-radius:15px; background:#f7fafc; font-size:1rem;
+      color:#4a5568; cursor:pointer; transition: all 0.3s ease;
+    }
+    .file-input:hover{ border-color:#667eea; background:#edf2f7; }
+    .file-input:focus{
+      outline:none; border-color:#667eea;
+      box-shadow:0 0 0 3px rgba(102,126,234,0.1);
+    }
+    .submit-btn{
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color:white; border:none; padding:18px 40px; font-size:1.1rem;
+      font-weight:600; border-radius:12px; cursor:pointer;
+      transition: all 0.3s ease; align-self:center; min-width:200px;
+    }
+    .submit-btn:hover{
+      transform: translateY(-2px);
+      box-shadow:0 10px 30px rgba(102,126,234,0.3);
+    }
+    .error-message{
+      background:#fed7d7; color:#c53030; padding:15px; border-radius:10px;
+      margin-bottom:20px; border-left:4px solid #f56565;
+    }
+    .success-message{
+      background:#f0fff4; color:#38a169; padding:15px; border-radius:10px;
+      margin-bottom:20px; border-left:4px solid #48bb78;
+    }
 
-        .results-section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-        }
-        .results-header { text-align: center; margin-bottom: 40px; }
-        .results-header h2 { color: #2d3748; font-size: 2rem; margin-bottom: 10px; }
-        .results-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: start;
-        }
-        .original-video, .processing-result {
-            background: #f7fafc;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-        }
-        .section-title {
-            color: #4a5568;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        .video-player { width: 100%; height: auto; display: block; }
+    .results-section{
+      background:white; border-radius:20px; padding:40px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.1); margin-bottom:40px;
+    }
+    .results-header{ text-align:center; margin-bottom:40px; }
+    .results-header h2{ color:#2d3748; font-size:2rem; margin-bottom:10px; }
+    .results-content{
+      display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;
+    }
+    .original-video, .processing-result{
+      background:#f7fafc; border-radius:15px; padding:30px; text-align:center;
+    }
+    .section-title{
+      color:#4a5568; font-size:1.3rem; font-weight:600; margin-bottom:20px;
+    }
+    .video-container{
+      position:relative; width:100%; max-width:400px; margin:0 auto;
+      border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.2);
+      background:white;
+      padding:18px;
+    }
+    .video-player{ width:100%; height:auto; display:block; }
+    .result-content{
+      background:white; padding:25px; border-radius:12px; border:2px solid #e2e8f0;
+    }
+    .result-status{
+      display:inline-flex; align-items:center; gap:10px;
+      background:#f0fff4; color:#38a169; padding:12px 20px; border-radius:8px;
+      font-weight:500; margin-bottom:20px;
+    }
+    .result-status.processing{ background:#fff5b4; color:#744210; }
+    .result-status.error{ background:#fed7d7; color:#c53030; }
 
-        .result-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-        }
-        .result-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #f0fff4;
-            color: #38a169;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-        .result-status.processing { background: #fff5b4; color: #744210; }
-        .result-status.error { background: #fed7d7; color: #c53030; }
+    .footer{
+      background:rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      padding:30px 0; margin-top:auto; border-top:1px solid rgba(0,0,0,0.1);
+      text-align:center;
+    }
 
-        .footer {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px 0;
-            margin-top: auto;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+    @media (max-width: 768px){
+      .main-content{ padding:15px; }
+      .header h1{ font-size:2rem; }
+      .upload-section, .results-section{ padding:30px 20px; }
+      .results-content{ grid-template-columns:1fr; gap:30px; }
+      .submit-btn{ width:100%; min-width:auto; }
+    }
+  </style>
+</head>
 
-        @media (max-width: 768px) {
-            .main-content { padding: 15px; }
-            .header h1 { font-size: 2rem; }
-            .upload-section, .results-section { padding: 30px 20px; }
-            .results-content { grid-template-columns: 1fr; gap: 30px; }
-            .submit-btn { width: 100%; min-width: auto; }
-            .navbar-brand { font-size: 1.5rem; }
-        }
-        @media (max-width: 480px) {
-            .header h1 { font-size: 1.8rem; }
-            .upload-section, .results-section { padding: 25px 15px; }
-            .file-input { padding: 15px; }
-            .navbar-container { padding: 0 15px; }
-        }
-        </style>
-    </head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="#" class="navbar-brand">RPPG PROJECT</a>
+    </div>
+  </nav>
 
-    <body>
-        <nav class="navbar">
-            <div class="navbar-container">
-                <a href="#" class="navbar-brand">RPPG PROJECT</a>
+  <main class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1>Contactless Heart Rate Monitoring</h1>
+        <p>
+          Upload a facial video to extract cardiovascular signals using advanced computer vision.
+          Our RPPG technology detects subtle color variations in skin tissue to measure heart rate
+          and pulse variability without physical contact
+        </p>
+      </div>
+
+      {% if error_message %}
+      <div class="error-message">{{ error_message }}</div>
+      {% endif %}
+
+      {% if success_msg %}
+      <div class="success-message">{{ success_msg }}</div>
+      {% endif %}
+
+      <div class="upload-section">
+        <form class="upload-form" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label class="form-label" for="subject_id">Subject ID</label>
+            <input id="subject_id" name="subject_id" class="file-input" value="{{ subject_id|default:'S01' }}" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="condition">Condition</label>
+            <select id="condition" name="condition" class="file-input">
+              <option value="rest" {% if condition == 'rest' %}selected{% endif %}>rest</option>
+              <option value="breath" {% if condition == 'breath' %}selected{% endif %}>breath</option>
+              <option value="exercise" {% if condition == 'exercise' %}selected{% endif %}>exercise</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modality">Modality</label>
+            <select id="modality" name="modality" class="file-input">
+              <option value="face" {% if modality == 'face' %}selected{% endif %}>face</option>
+              <option value="palm" {% if modality == 'palm' %}selected{% endif %}>palm</option>
+            </select>
+          </div>
+
+          <input type="hidden" name="method" value="{{ method|default:'thesis_precomputed' }}" />
+
+          <div class="form-group">
+            <label class="form-label" for="video_file">Select Video File</label>
+            <input type="file" id="video_file" name="video_file" class="file-input" accept="video/*" required>
+            <small style="color:#718096; margin-top:10px; display:block;">
+              Supported formats: MP4, AVI, MOV, WMV, MKV (Max size: 100MB)
+            </small>
+          </div>
+
+          <button type="submit" class="submit-btn">Analyze Video</button>
+        </form>
+      </div>
+
+      {% if video_data %}
+      <div class="results-section">
+        <div class="results-header">
+          <h2>RPPG Processing Results</h2>
+          {% if p_status == 'completed' %}
+          <div class="result-status">✅ Detection Complete</div>
+          {% elif p_status == 'processing' %}
+          <div class="result-status processing">⏳ Processing in progress...</div>
+          {% elif p_status == 'error' %}
+          <div class="result-status error">❌ Processing failed</div>
+          {% endif %}
+        </div>
+
+        <div class="results-content">
+          <div class="original-video">
+            <h3 class="section-title">Uploaded Video</h3>
+
+            <div class="video-container">
+              {% if video_data_url %}
+              <video class="video-player" controls>
+                <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
+                Your browser does not support the video tag.
+              </video>
+              {% else %}
+              <p style="color:#718096; font-style: italic;">
+                Preview disabled on server (to avoid large base64 responses).<br>
+                Uploaded file: <strong>{{ video_data.name }}</strong>
+              </p>
+              {% endif %}
             </div>
-        </nav>
+          </div>
 
-        <main class="main-content">
-            <div class="container">
-                <div class="header">
-                    <h1>Contactless Heart Rate Monitoring</h1>
-                    <p>
-                        Upload a facial video to extract cardiovascular signals
-                        using advanced computer vision. Our RPPG technology
-                        detects subtle color variations in skin tissue to
-                        measure heart rate and pulse variability without
-                        physical contact
-                    </p>
+          <div class="processing-result">
+            <h3 class="section-title">RPPG Analysis Result</h3>
+            <div class="result-content">
+              {% if p_result %}
+              <h4 style="color:#2d3748; margin-bottom:15px;">Results</h4>
+
+              <div style="background:#f7fafc; padding:15px; border-radius:8px;">
+                {% for k, v in p_result.items %}
+                <div style="margin-bottom:6px;">
+                  <strong>{{ k|title }}:</strong> {{ v }}
                 </div>
+                {% endfor %}
+              </div>
 
-                {% if error_message %}
-                <div class="error-message">
-                    {{ error_message }}
-                </div>
-                {% endif %}
-
-                {% if success_msg %}
-                <div class="success-message">
-                    {{ success_msg }}
-                </div>
-                {% endif %}
-
-                <div class="upload-section">
-                    <form class="upload-form" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        <div class="form-group">
-                            <label class="form-label" for="subject_id">Subject ID</label>
-                            <input id="subject_id" name="subject_id" class="file-input" value="S01" />
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="condition">Condition</label>
-                            <select id="condition" name="condition" class="file-input">
-                                <option value="rest">rest</option>
-                                <option value="breath">breath</option>
-                                <option value="exercise">exercise</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="modality">Modality</label>
-                            <select id="modality" name="modality" class="file-input">
-                                <option value="face">face</option>
-                                <option value="palm">palm</option>
-                            </select>
-                        </div>
-
-                        <input type="hidden" name="method" value="thesis_precomputed" />
-
-                        <div class="form-group">
-                            <label class="form-label" for="video_file">Select Video File</label>
-                            <input type="file" id="video_file" name="video_file"
-                                   class="file-input" accept="video/*" required>
-                            <small style="color: #718096; margin-top: 10px; display: block;">
-                                Supported formats: MP4, AVI, MOV, WMV, MKV (Max size: 100MB)
-                            </small>
-                        </div>
-
-                        <button type="submit" class="submit-btn">
-                            Analyze Video
-                        </button>
-                    </form>
-                </div>
-
-                {% if video_data %}
-                <div class="results-section">
-                    <div class="results-header">
-                        <h2>RPPG Processing Results</h2>
-                        {% if p_status == 'completed' %}
-                        <div class="result-status">✅ Detection Complete</div>
-                        {% elif p_status == 'processing' %}
-                        <div class="result-status processing">⏳ Processing in progress...</div>
-                        {% elif p_status == 'error' %}
-                        <div class="result-status error">❌ Processing failed</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="results-content">
-                        <div class="original-video">
-                            <h3 class="section-title">Uploaded Video</h3>
-                            <div class="video-container">
-
-                                {% if video_data_url %}
-                                <video class="video-player" controls>
-                                  <source src="{{ video_data_url }}" type="{{ video_data.content_type }}">
-                                  Your browser does not support the video tag.
-                                </video>
-                                {% else %}
-                                <p style="color:#718096; font-style: italic; padding: 20px;">
-                                  Preview disabled on server (to avoid large base64 responses).<br>
-                                  Uploaded file: <strong>{{ video_data.name }}</strong>
-                                </p>
-                                {% endif %}
-
-                            </div>
-                        </div>
-
-                        <div class="processing-result">
-                            <h3 class="section-title">RPPG Analysis Result</h3>
-                            <div class="result-content">
-                                {% if p_result %}
-                                <h4 style="color: #2d3748; margin-bottom: 15px;">Results</h4>
-
-                                <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
-                                    {% for k, v in p_result.items %}
-                                    <div style="margin-bottom: 5px;">
-                                        <strong>{{ k|title }}:</strong> {{ v }}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-
-                                {% else %}
-                                <p style="color: #718096; font-style: italic;">
-                                    RPPG analysis results will appear here once the video has been processed.
-                                </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+              {% else %}
+              <p style="color:#718096; font-style: italic;">
+                RPPG analysis results will appear here once the video has been processed.
+              </p>
+              {% endif %}
             </div>
-        </main>
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
-        <footer class="footer">
-            <p>&copy; 2025 RPPG Project | Academic Purpose Only | UESTC</p>
-        </footer>
-    </body>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 RPPG Project | Academic Purpose Only | UESTC</p>
+  </footer>
+</body>
 </html>

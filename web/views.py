@@ -1,11 +1,12 @@
 import os
 import tempfile
+import time
 import requests
+
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 
 API_URL = "https://rppg-server-pack.onrender.com/upload_video"
-
 
 @csrf_protect
 def video_upload_view(request):
@@ -15,7 +16,6 @@ def video_upload_view(request):
         temp_file_path = None
         try:
             video_file = request.FILES.get("video_file")
-
             if not video_file:
                 context["error_message"] = "No video file was uploaded."
                 return render(request, "web/video_upload.html", context)
@@ -28,13 +28,15 @@ def video_upload_view(request):
                 context["error_message"] = "File too large (max 100MB)."
                 return render(request, "web/video_upload.html", context)
 
-            # 1) Read metadata from the HTML form (POST)
             subject_id = (request.POST.get("subject_id", "S01") or "S01").strip()
             condition = (request.POST.get("condition", "rest") or "rest").strip().lower()
             modality = (request.POST.get("modality", "face") or "face").strip().lower()
             method = (request.POST.get("method", "thesis_precomputed") or "thesis_precomputed").strip()
 
-            # 2) Optional: auto-detect from filename if user didn’t choose
+            # checkbox: if checked sends "1", else missing -> default 0
+            save = int(request.POST.get("save", "0") or "0")
+
+            # Optional: auto-detect from filename
             name_lower = (video_file.name or "").lower()
             if "breath" in name_lower:
                 condition = "breath"
@@ -48,26 +50,41 @@ def video_upload_view(request):
             elif "face" in name_lower:
                 modality = "face"
 
-            # Save temp file for upload
+            # Save temp file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
                 for chunk in video_file.chunks():
                     tmp.write(chunk)
                 temp_file_path = tmp.name
 
-            # Call FastAPI
-            with open(temp_file_path, "rb") as f:
-                files = {"file": (video_file.name, f, video_file.content_type or "video/mp4")}
-                data = {
-                    "subject_id": subject_id,
-                    "condition": condition,
-                    "modality": modality,
-                    "method": method,
-                    "min_valid_pct": 50,
-                    "save": 0,
-                }
-                response = requests.post(API_URL, files=files, data=data, timeout=130)
-                response.raise_for_status()
-                rppg_result = response.json()
+            # Call FastAPI (retry once on 502/connection reset)
+            rppg_result = None
+            last_err = None
+
+            for attempt in (1, 2):
+                try:
+                    with open(temp_file_path, "rb") as f:
+                        files = {"file": (video_file.name, f, video_file.content_type or "video/mp4")}
+                        data = {
+                            "subject_id": subject_id,
+                            "condition": condition,
+                            "modality": modality,
+                            "method": method,
+                            "min_valid_pct": 50,
+                            "save": save,
+                        }
+                        # longer timeouts because Render free can be slow
+                        response = requests.post(API_URL, files=files, data=data, timeout=(15, 240))
+                        response.raise_for_status()
+                        rppg_result = response.json()
+                    break
+                except Exception as e:
+                    last_err = e
+                    # small pause then retry
+                    if attempt == 1:
+                        time.sleep(2)
+
+            if rppg_result is None:
+                raise last_err
 
             # Cleanup temp file
             try:
@@ -82,7 +99,7 @@ def video_upload_view(request):
                     "size": video_file.size,
                     "content_type": video_file.content_type,
                 },
-                "video_data_url": None,  # disable preview (avoid base64 huge response)
+                "video_data_url": None,  # preview disabled
                 "analysis": "Video processed successfully.",
                 "p_result": rppg_result,
                 "p_status": "completed",

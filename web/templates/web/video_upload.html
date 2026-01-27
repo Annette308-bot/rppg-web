@@ -95,6 +95,7 @@
     .video-player{ width:100%; height:auto; display:block; }
     .result-content{
       background:white; padding:25px; border-radius:12px; border:2px solid #e2e8f0;
+      text-align:left;
     }
     .result-status{
       display:inline-flex; align-items:center; gap:10px;
@@ -108,6 +109,20 @@
       background:rgba(255,255,255,0.95); backdrop-filter: blur(10px);
       padding:30px 0; margin-top:auto; border-top:1px solid rgba(0,0,0,0.1);
       text-align:center;
+    }
+
+    /* small checkbox polish */
+    .checkbox-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:600;
+      color:#4a5568;
+      user-select:none;
+    }
+    .checkbox-row input[type="checkbox"]{
+      transform: scale(1.1);
+      cursor:pointer;
     }
 
     @media (max-width: 768px){
@@ -172,6 +187,16 @@
             </select>
           </div>
 
+          <!-- ✅ ADD THIS: Save checkbox (after modality) -->
+          <div class="form-group">
+            <label class="form-label" for="save_cb">
+              <span class="checkbox-row">
+                <input id="save_cb" type="checkbox" name="save" value="1" {% if save %}checked{% endif %} />
+                Save CSV on server (enable download link)
+              </span>
+            </label>
+          </div>
+
           <input type="hidden" name="method" value="{{ method|default:'thesis_precomputed' }}" />
 
           <div class="form-group">
@@ -231,6 +256,25 @@
                 </div>
                 {% endfor %}
               </div>
+
+              <!-- ✅ ADD THIS: download links block -->
+              {% if p_result.saved.summary_metrics_csv %}
+                <div style="margin-top:15px;">
+                  <strong>Download CSV:</strong>
+                  <a href="{{ p_result.saved.summary_metrics_csv }}" target="_blank">
+                    summary_metrics.csv
+                  </a>
+                </div>
+              {% endif %}
+
+              {% if p_result.saved.uploads_log_csv %}
+                <div style="margin-top:10px;">
+                  <strong>All uploads log:</strong>
+                  <a href="{{ p_result.saved.uploads_log_csv }}" target="_blank">
+                    uploads_log.csv
+                  </a>
+                </div>
+              {% endif %}
 
               {% else %}
               <p style="color:#718096; font-style: italic;">
